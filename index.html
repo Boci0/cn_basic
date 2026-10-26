@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#b3261e">
+<link rel="icon" href="icon.svg">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mandarin L1-5 Sheet</title>
+<style>
+:root{--bg:#f6f3ec;--card:#fff;--ink:#1d1d1f;--mute:#6b6b70;--line:#ddd6c6;--acc:#b3261e;--flag:#d98200}
+@media (prefers-color-scheme:dark){:root{--bg:#161616;--card:#222;--ink:#f1efe9;--mute:#9a9a9f;--line:#3a3a3a;--acc:#ff7a70;--flag:#ffb347}}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--ink);font:14px system-ui,sans-serif;display:flex;flex-direction:column;padding:6px;gap:5px}
+header{display:flex;align-items:center;gap:8px;flex:none;font-size:13px}
+header b{font-size:15px}
+header span{color:var(--mute);flex:1}
+button,a.btn{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:6px;padding:3px 9px;cursor:pointer;text-decoration:none}
+button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+/* press feedback; touch-action kills the double-tap zoom wait on phones, user-select stops double-click highlighting text */
+.c,button{touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;transition:transform .08s,background-color .15s,border-color .15s}
+.c:active,button:active:not(:disabled){transform:scale(.94)}
+button:hover:not(:disabled){border-color:var(--acc)}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible,.c:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+#dlg.open #box,#ex.open>*{animation:pop .14s ease-out}
+@keyframes pop{from{transform:scale(.96);opacity:0}}
+@media (prefers-reduced-motion:reduce){.c,button{transition:none}#dlg.open #box,#ex.open>*{animation:none}}
+.lesson{flex:1;min-height:0;display:flex;gap:5px}
+.tag{flex:none;width:30px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;font-weight:700;color:var(--mute);border-radius:4px;background:var(--line);line-height:1.2;padding:2px}
+.row{flex:1;display:grid;grid-template-columns:repeat(var(--cols,10),1fr);gap:4px;min-width:0}
+.c{position:relative;background:var(--card);border:1px solid var(--line);border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;min-height:0;overflow:hidden;line-height:1.15;padding:2px}
+.c:hover{border-color:var(--acc)}
+.c .h{font-size:calc(clamp(22px,4.6vmin,52px) * var(--k,1));white-space:nowrap;font-family:"Noto Serif SC","Songti SC","SimSun",serif}
+.c .p{font-size:clamp(11px,1.9vmin,17px);color:var(--acc);font-weight:600}
+.c .e{font-size:clamp(9px,1.6vmin,14px);color:var(--mute);text-align:center}
+.c.f::after{content:"⚑";position:absolute;top:1px;right:3px;font-size:11px;color:var(--flag)}
+#ex{position:fixed;inset:0;background:var(--bg);display:none;flex-direction:column;align-items:center;gap:10px;padding:12px;overflow:auto;z-index:8}
+#ex.open{display:flex}
+#ex h2{font-size:18px}#ex .mute{color:var(--mute);font-size:13px;text-align:center}
+#ex ol{list-style:none;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:4px 14px;width:min(100%,640px)}
+#ex ol b{color:var(--acc);display:inline-block;width:22px}
+#ex .letters{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px;width:min(100%,640px)}
+#ex .letters button{font-size:20px;padding:10px 0}
+#ex .letters button.pick{background:var(--acc);color:#fff;border-color:var(--acc)}
+#ex .big{font-size:40px;font-weight:700;color:var(--acc)}
+#qw{background:#fff;border:1px solid var(--line);border-radius:8px;touch-action:none;
+ background-image:linear-gradient(#e8d0d0 1px,transparent 1px),linear-gradient(90deg,#e8d0d0 1px,transparent 1px);background-size:50% 50%}
+#ex table{border-collapse:collapse;font-size:14px}#ex td,#ex th{border-bottom:1px solid var(--line);padding:4px 8px;text-align:center}
+.ok{color:#2e7d32}.no{color:var(--acc)}
+#dlg{position:fixed;inset:0;background:#0007;display:none;align-items:center;justify-content:center;z-index:9}
+#dlg.open{display:flex}
+#box{background:var(--card);border-radius:12px;padding:14px;width:min(94vw,420px);max-height:96vh;overflow:auto;display:flex;flex-direction:column;gap:8px;align-items:center}
+#hw{display:flex;gap:4px;justify-content:center}
+#hw>div{background:#fff;border:1px solid var(--line);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#222;font-size:60px;
+ background-image:linear-gradient(#e8d0d0 1px,transparent 1px),linear-gradient(90deg,#e8d0d0 1px,transparent 1px);background-size:50% 50%}
+#note{background:#fff3df;color:#5a3a00;border-radius:6px;padding:6px 8px;font-size:12.5px;width:100%}
+#links{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+#links a{color:var(--acc);font-size:13px}
+</style>
+</head>
+<body>
+<header>
+  <b>华语 L1–5</b><span id="sub"></span>
+  <button id="mode">Vocab</button>
+  <button id="lvb">Easy → hard</button>
+  <button id="sh">Shuffle</button>
+  <button id="t">Assessment</button>
+</header>
+<main id="m" style="flex:1;min-height:0;display:flex;flex-direction:column;gap:5px"></main>
+
+<div id="dlg"><div id="box">
+  <div style="display:flex;gap:8px;align-items:baseline"><b id="dp" style="font-size:22px;color:var(--acc)"></b><span id="de"></span></div>
+  <div id="hw"></div>
+  <div style="display:flex;gap:6px"><button id="play">▶ Strokes</button><button id="say">🔊 Say</button><button id="x">Close</button></div>
+  <div id="note" hidden></div>
+  <div id="links"></div>
+</div></div>
+<div id="ex"></div>
+
+<script src="vendor/hanzi-writer.min.js"></script>
+<script src="data.js"></script>
+<script src="vendor/strokes.js"></script>
+<script>
+const m=document.getElementById('m'),dlg=document.getElementById('dlg');
+let writers=[],cur,ag=0,sg=0; // generation counters: callbacks from an older word/animation must not act
+function playAll(i=0,g=++ag){if(g!==ag||i>=writers.length)return;const w=writers[i];if(!w)return playAll(i+1,g);w.animateCharacter({onComplete:()=>playAll(i+1,g)});}
+let vocab=false;
+const ALL=L.flatMap(l=>l[1]);
+// difficulty = most strokes in any character of the card
+const SC=d=>Math.max(...[...d[0]].map(c=>STROKES[c]?STROKES[c].strokes.length:9));
+const TIER=[['Easy',5],['Mid',7],['Hard',99]],tier=d=>TIER.findIndex(t=>SC(d)<=t[1]);
+function build(shuffle){
+  m.innerHTML='';
+  sub.textContent=vocab?'Vocab: words + extra characters from L1–5 · tap a card for sound/strokes · ⚑ = double-check':'49 compulsory characters · tap a card for stroke order + sound · ⚑ = double-check';
+  const D=vocab?V:L;
+  if(shuffle){const a=D.flatMap(l=>l[1]).sort(()=>Math.random()-.5),n=Math.ceil(a.length/5);for(let i=0;i<5;i++)add('?',a.slice(i*n,i*n+n));}
+  else if(lvb.classList.contains('on')){const a=D.flatMap(l=>l[1]);TIER.forEach((t,i)=>add(t[0],a.filter(d=>tier(d)===i).sort((x,y)=>SC(x)-SC(y))));}
+  else D.forEach(l=>add(l[0],l[1]));
+}
+function add(name,cards){
+  const s=document.createElement('section');s.className='lesson';
+  s.innerHTML='<div class="tag">'+name+'</div><div class="row"></div>';
+  const r=s.lastChild;
+  r.style.setProperty('--cols',cards.length>12?Math.ceil(cards.length/2):10);
+  s.style.setProperty('--w',Math.max(2,Math.ceil(cards.length/5)));
+  cards.forEach(d=>{
+    const c=document.createElement('div');c.className='c'+(d[3]?' f':'');
+    c.style.setProperty('--k',[1,1,.8,.62,.5][Math.min([...d[0]].length,4)]);
+    c.innerHTML='<div class="h">'+d[0]+'</div><div class="p">'+d[1]+'</div><div class="e">'+d[2]+'</div>';
+    c.onclick=()=>open(d);
+    r.append(c);
+  });
+  m.append(s);
+}
+let aud;
+// char -> clip name, e.g. 你 nǐ -> ni3
+const CL={};for(const l of L)for(const d of l[1]){const n=d[1].normalize('NFD');const k='̄́̌̀'.split('').findIndex(c=>n.includes(c));CL[d[0]]=n.replace(/[̀-ͯ]/g,'')+(k<0?'':k+1);}
+Object.assign(CL,CLIPS);
+function hush(){sg++;if(window.speechSynthesis)speechSynthesis.cancel();if(aud){aud.pause();aud=null;}}
+function say(t){
+  hush();const g=sg;
+  // 0) native clip from ./audio (Wikimedia Commons), falling back to the voice below
+  const f=CL[t];
+  if(f){const c=aud=new Audio('audio/'+f+'.ogg');c.onerror=()=>{if(g===sg)tts(t,g)};c.play().catch(()=>{if(g===sg)tts(t,g)});return;}
+  tts(t,g);
+}
+function tts(t,g){
+  // 1) a Mandarin voice (zh-HK is Cantonese, so it goes last), 2) fallback: the bundled clips one character at a time
+  const vs=(window.speechSynthesis?speechSynthesis.getVoices():[]).filter(v=>/^zh/i.test(v.lang));
+  const v=vs.find(v=>/^zh[-_]CN$/i.test(v.lang))||vs.find(v=>!/HK/i.test(v.lang))||vs[0];
+  const fb=()=>{if(g!==sg)return;const fs=[...t].filter(c=>c!=='儿').map(c=>CL[c]); // 儿 in 点儿 is the -r ending, not a syllable
+    // shortcut: clips use dictionary tones, so tone changes like bú/yì and neutral tones are not heard; bundle word clips to upgrade
+    if(!fs.every(Boolean))return alert('No sound: this browser has no Mandarin voice. Use the Forvo link, or install Chinese (Simplified) with speech in Windows Settings > Time & language > Language & region.');
+    const next=i=>{if(g!==sg||i>=fs.length)return;const a=aud=new Audio('audio/'+fs[i]+'.ogg');a.onended=()=>next(i+1);a.play().catch(()=>{});};
+    next(0);};
+  if(!v)return fb();
+  const u=new SpeechSynthesisUtterance(t);u.voice=v;u.lang=v.lang;u.rate=.8;u.onerror=fb;
+  speechSynthesis.speak(u);
+}
+if(window.speechSynthesis)speechSynthesis.onvoiceschanged=()=>{};
+function open(d){
+  cur=d;dlg.classList.add('open');
+  dp.textContent=d[1];de.textContent=d[2];
+  const n=document.getElementById('note');n.hidden=!d[3];n.textContent=d[3]?'⚑ '+d[3]:'';
+  const c=encodeURIComponent(d[0]);
+  links.innerHTML=
+   '<a target="_blank" rel="noopener" href="https://en.wiktionary.org/wiki/'+c+'#Chinese">Wiktionary (strokes + readings)</a>'+
+   '<a target="_blank" rel="noopener" href="https://www.mdbg.net/chinese/dictionary?page=worddict&wdrst=0&wdqb='+c+'">MDBG dictionary</a>'+
+   '<a target="_blank" rel="noopener" href="https://forvo.com/word/'+c+'/#zh">Forvo (native audio)</a>';
+  hw.innerHTML='';writers=[];
+  const cs=[...d[0]];
+  const w=Math.min(200,Math.floor(380/cs.length));
+  cs.forEach(ch=>{
+    const el=document.createElement('div');el.style.width=el.style.height=w+'px';hw.append(el);
+    if(!STROKES[ch]){el.textContent=ch;el.style.fontSize=w*.6+'px';writers.push(null);return;} // no stroke data bundled for this character
+    writers.push(HanziWriter.create(el,ch,{charDataLoader:(c,ok)=>ok(STROKES[c]),width:w,height:w,padding:8,strokeColor:'#222',radicalColor:'#b3261e',showCharacter:false,strokeAnimationSpeed:1.2,delayBetweenStrokes:250}));
+  });
+  playAll();
+  say(d[0]);
+}
+play.onclick=()=>{writers.forEach(w=>w&&w.hideCharacter());playAll();};
+document.getElementById('say').onclick=()=>say(cur[0]);
+function shut(){dlg.classList.remove('open');hush();ag++;}
+x.onclick=shut;
+dlg.onclick=e=>{if(e.target===dlg)shut()};
+document.onkeydown=e=>{if(e.key!=='Escape'){if(exKey&&EX.classList.contains('open')&&!dlg.classList.contains('open')&&!e.ctrlKey&&!e.metaKey&&!e.altKey){e.preventDefault();exKey(e.key);}return;}if(dlg.classList.contains('open'))shut();else if(EX.classList.contains('open'))exShut();};
+t.onclick=()=>exam();
+lvb.onclick=()=>{lvb.classList.toggle('on');sh.dataset.s='';sh.classList.remove('on');build(false)};
+mode.onclick=()=>{vocab=!vocab;mode.textContent=vocab?'Chars':'Vocab';mode.classList.toggle('on',vocab);sh.dataset.s='';sh.classList.remove('on');build(false)};
+sh.onclick=()=>{sh.dataset.s=sh.dataset.s==='1'?'':'1';sh.classList.toggle('on');lvb.classList.remove('on');build(sh.dataset.s==='1')};
+
+// Assessment practice, same format as Assessment 1: read the lettered English list (30 s), hear 10 characters and pick
+// the meaning, then write all 10 (15 min). Levels add harder characters; the next unlocks at 8/10 on both parts.
+const EX=document.getElementById('ex'),LVL=['Level 1 · Easy (1–5 strokes)','Level 2 · + Mid (up to 7 strokes)','Level 3 · all 49'];
+let xg=0,xw=null,exKey=null; // xg: bumps on every screen change so old timers stop
+const store=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){}};
+const unlocked=()=>+(store('lvl')||0);
+function exShut(){xg++;exKey=null;hush();xw=null;EX.classList.remove('open');}
+function tick(sec,el,done){const g=xg,end=Date.now()+sec*1000;const f=()=>{if(g!==xg)return;const s=Math.max(0,Math.ceil((end-Date.now())/1000));el.textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');if(s)setTimeout(f,250);else done();};f();}
+function exam(){
+  xg++;exKey=null;EX.classList.add('open');const u=unlocked();
+  EX.innerHTML='<h2>Assessment practice</h2><p class="mute">Build up in order: <b>1</b> hear it → pick the meaning, <b>2</b> meaning → write it, <b>3</b> the full mock test.<br>Drills only use the level\'s new characters; misses come back until you get them right.</p>'+
+    LVL.map((n,i)=>'<div style="width:min(100%,460px);border:1px solid var(--line);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:6px'+(i>u?';opacity:.5':'')+'"><b>'+(i>u?'🔒 ':'')+n+'</b><div style="display:flex;gap:6px">'+
+      ['1 · Listen drill','2 · Write drill','3 · Mock test'].map((t,k)=>'<button data-l="'+i+'" data-k="'+k+'" style="flex:1;padding:9px 4px"'+(i>u?' disabled':'')+'>'+t+'</button>').join('')+'</div></div>').join('')+
+    (u<2?'<p class="mute">Score 8/10 on both parts of a mock test to unlock the next level.</p>':'')+'<button id="xq">Close</button>';
+  EX.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{const l=+b.dataset.l,k=+b.dataset.k;k===2?exStart(l):drill(l,k===1);});xq.onclick=exShut;
+}
+// Drills: one character at a time with instant feedback. A miss goes back into the queue 3 places later,
+// so it keeps returning until answered right; the round ends when every character has been got right once.
+function drill(lv,write){
+  const pool=ALL.filter(d=>tier(d)===lv),q=pool.slice().sort(()=>Math.random()-.5),st={done:0,miss:0,n:pool.length};
+  const next=()=>{if(!q.length)return drillEnd(lv,write,st);const d=q.shift();(write?drillWrite:drillListen)(d,ok=>{if(ok)st.done++;else{st.miss++;q.splice(Math.min(3,q.length),0,d);}next();},st,pool);};
+  next();
+}
+function drillHead(write,st){return '<h2>'+(write?'2 · Write drill':'1 · Listen drill')+'</h2><p class="mute">'+st.done+' of '+st.n+' learned'+(st.miss?' · '+st.miss+' miss'+(st.miss>1?'es':'')+' so far':'')+'</p>';}
+function drillListen(d,done,st,pool){
+  xg++;const g=xg;
+  // 3 wrong options that do not sound the same as the answer
+  const wrong=pool.filter(o=>CL[o[0]]!==CL[d[0]]).sort(()=>Math.random()-.5).slice(0,3),opts=[d,...wrong].sort(()=>Math.random()-.5);
+  EX.innerHTML=drillHead(false,st)+'<div class="big">🔊</div><button id="xr">Hear again (space)</button><div class="letters" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr))">'+
+    opts.map((o,j)=>'<button data-j="'+j+'" style="font-size:16px">'+String.fromCharCode(65+j)+' · '+o[2]+'</button>').join('')+'</div><div id="fb" style="text-align:center;min-height:90px"></div><button id="xm">Back to levels</button>';
+  const hear=()=>say(d[0]);xr.onclick=hear;xm.onclick=exam;setTimeout(()=>g===xg&&hear(),300);
+  const bs=EX.querySelectorAll('[data-j]');let picked=false;
+  bs.forEach(b=>b.onclick=()=>{if(picked||g!==xg)return;picked=true;const ok=opts[+b.dataset.j]===d;
+    bs.forEach((o,j)=>{o.disabled=true;if(opts[j]===d)o.style.cssText+=';background:#2e7d32;color:#fff;opacity:1';});
+    if(!ok)b.style.cssText+=';background:var(--acc);color:#fff;opacity:1';
+    fb.innerHTML='<div style="font-size:44px">'+d[0]+'</div><b style="color:var(--acc)">'+d[1]+'</b> · '+d[2]+(ok?' <span class="ok">✓</span>':' <span class="no">✗ it will come back</span>');
+    if(ok)setTimeout(()=>g===xg&&done(true),900);
+    else{fb.innerHTML+='<br><button id="xn" style="margin-top:6px">Next (enter)</button>';xn.onclick=()=>g===xg&&done(false);xn.focus();hear();}});
+  exKey=k=>{const j=k.toUpperCase().charCodeAt(0)-65;if(k===' ')hear();else if(k==='Enter'&&window.xn)xn.click();else if(k.length===1&&bs[j])bs[j].click();};
+}
+function drillWrite(d,done,st){
+  xg++;exKey=null;const g=xg;
+  EX.innerHTML=drillHead(true,st)+'<div style="font-size:20px"><b>'+d[2]+'</b> · <span style="color:var(--acc)">'+d[1]+'</span></div><div id="qw"></div><div id="fb" class="mute" style="min-height:20px">Write the character. A hint shows after a wrong stroke.</div>'+
+    '<div style="display:flex;gap:6px"><button id="xr">🔊 Hear</button><button id="xs">Show me how</button><button id="xm">Back to levels</button></div>';
+  const w=Math.min(260,innerWidth-40);qw.style.width=qw.style.height=w+'px';
+  xw=HanziWriter.create(qw,d[0],{charDataLoader:(c,ok)=>ok(STROKES[c]),width:w,height:w,padding:10,showCharacter:false,showOutline:false,showHintAfterMisses:1,drawingWidth:24,strokeColor:'#222',drawingColor:'#333'});
+  const quiz=()=>xw.quiz({onComplete:r=>{if(g!==xg)return;const ok=r.totalMistakes<=1;
+    fb.innerHTML=ok?'<span class="ok">✓ '+d[0]+' done</span>':'<span class="no">'+r.totalMistakes+' wrong strokes, it will come back</span>';setTimeout(()=>g===xg&&done(ok),ok?800:1600);}});
+  quiz();say(d[0]);xr.onclick=()=>say(d[0]);xm.onclick=exam;
+  // watching the answer counts as a miss, then they write it themselves
+  let shown=false;xs.onclick=()=>{if(g!==xg)return;shown=true;xw.cancelQuiz();xw.animateCharacter({onComplete:()=>{if(g!==xg)return;xw.hideCharacter();fb.textContent='Now you write it.';
+    xw.quiz({onComplete:()=>{if(g===xg)setTimeout(()=>g===xg&&done(false),800);}});}});};
+}
+function drillEnd(lv,write,st){
+  xg++;exKey=null;
+  EX.innerHTML='<h2>'+(write?'Write':'Listen')+' drill done</h2><div class="big">'+st.n+' / '+st.n+'</div><p class="mute">'+(st.miss?st.miss+' miss'+(st.miss>1?'es':'')+' on the way. Do it again until it is 0.':'No misses. Move on to the next step.')+'</p>'+
+    '<div style="display:flex;gap:6px"><button id="xa">Again</button><button id="xn">'+(write?'3 · Mock test':'2 · Write drill')+'</button><button id="xm">Levels</button></div>';
+  xa.onclick=()=>drill(lv,write);xn.onclick=()=>write?exStart(lv):drill(lv,true);xm.onclick=exam;
+}
+function exStart(lv){
+  const pool=ALL.filter(d=>tier(d)<=lv).sort(()=>Math.random()-.5),pick=[];
+  // no two items that sound the same (他/她 tā, 一/医 yī), or the listening question has two right answers
+  for(const d of pool)if(pick.length<14&&!pick.some(p=>CL[p[0]]===CL[d[0]]))pick.push(d);
+  const qs=pick.slice(0,10),opts=pick.slice().sort(()=>Math.random()-.5);
+  const x={lv,qs,opts,ans:[],marks:[]};
+  xg++;exKey=null;EX.innerHTML='<h2>Part 1 · read the list</h2><p class="mute">Listening starts in <b id="xt"></b></p><ol>'+
+    opts.map((d,i)=>'<li><b>'+String.fromCharCode(65+i)+'</b>'+d[2]+'</li>').join('')+'</ol><button id="xs">Start listening now</button>';
+  const go=()=>exListen(x,0);xs.onclick=go;tick(30,xt,go);
+}
+function exListen(x,i){
+  if(i>=10)return exWrite(x,0);
+  xg++;const g=xg;
+  EX.innerHTML='<h2>Part 1 · question '+(i+1)+' of 10</h2><p class="mute">Pick the letter of the meaning you hear (or press the letter key; space = hear again).</p><div class="big">🔊</div><button id="xr">Hear again</button><div class="letters">'+
+    x.opts.map((d,j)=>'<button data-j="'+j+'" title="'+d[2]+'">'+String.fromCharCode(65+j)+'</button>').join('')+'</div><ol>'+
+    x.opts.map((d,j)=>'<li><b>'+String.fromCharCode(65+j)+'</b>'+d[2]+'</li>').join('')+'</ol>';
+  const hear=()=>say(x.qs[i][0]);xr.onclick=hear;setTimeout(()=>g===xg&&hear(),400);
+  const bs=EX.querySelectorAll('[data-j]');
+  bs.forEach(b=>b.onclick=()=>{if(g!==xg||x.ans[i]!=null)return; // one answer per question, even on a double-click
+    x.ans[i]=+b.dataset.j;b.classList.add('pick');bs.forEach(o=>o.disabled=o!==b);setTimeout(()=>g===xg&&exListen(x,i+1),300);});
+  exKey=k=>{const j=k.toUpperCase().charCodeAt(0)-65;if(k.length===1&&bs[j])bs[j].click();else if(k===' ')hear();};
+}
+function exWrite(x,i){
+  exKey=null;
+  if(i===0){x.end=Date.now()+15*60*1000;}
+  if(i>=10||Date.now()>=x.end)return exResult(x);
+  xg++;const a=x.ans[i],d=x.qs[i];
+  EX.innerHTML='<h2>Part 2 · write '+(i+1)+' of 10</h2><p class="mute">Time left <b id="xt"></b> · write the character you heard for question '+(i+1)+
+    '<br>You chose <b>'+String.fromCharCode(65+a)+'</b> · '+x.opts[a][2]+'</p><div id="qw"></div>'+
+    '<div style="display:flex;gap:6px"><button id="xr">🔊 hint (not allowed in the real test)</button><button id="xk">I can\'t write it</button></div>';
+  tick(Math.ceil((x.end-Date.now())/1000),xt,()=>exResult(x));
+  const w=Math.min(260,innerWidth-40);qw.style.width=qw.style.height=w+'px';
+  xw=HanziWriter.create(qw,d[0],{charDataLoader:(c,ok)=>ok(STROKES[c]),width:w,height:w,padding:10,showCharacter:false,showOutline:false,showHintAfterMisses:3,drawingWidth:24,strokeColor:'#222',drawingColor:'#333'});
+  const g=xg;xw.quiz({onComplete:r=>{x.marks[i]=r.totalMistakes;setTimeout(()=>g===xg&&exWrite(x,i+1),700);}});
+  xr.onclick=()=>say(d[0]);xk.onclick=()=>{if(g===xg){x.marks[i]=null;exWrite(x,i+1);}};
+  xk.disabled=true;setTimeout(()=>xk.disabled=false,500); // a double-click on the previous screen must not skip this one too
+}
+function exResult(x){
+  xg++;exKey=null;hush();
+  // a written character counts if drawn with at most 2 wrong strokes (the hint shows after 3)
+  const mOk=x.qs.map((d,i)=>x.opts[x.ans[i]]===d),wOk=x.qs.map((d,i)=>x.marks[i]!=null&&x.marks[i]<=2);
+  const m=mOk.filter(Boolean).length,w=wOk.filter(Boolean).length,pass=m>=8&&w>=8;
+  if(pass&&x.lv<2&&unlocked()<=x.lv)store('lvl',x.lv+1);
+  EX.innerHTML='<h2>'+LVL[x.lv]+' · result</h2><div class="big">'+(m*.5+w)+' / 15%</div><p class="mute">Meaning '+m+'/10 (0.5% each) · Writing '+w+'/10 (1% each)'+
+    (pass?(x.lv<2?' · next level unlocked':' · all levels passed'):' · 8/10 on both parts to pass')+'</p>'+
+    '<table><tr><th>#</th><th>Heard</th><th>Meaning</th><th>You picked</th><th>Written</th></tr>'+x.qs.map((d,i)=>
+      '<tr><td>'+(i+1)+'</td><td style="font-size:22px">'+d[0]+' <small>'+d[1]+'</small></td><td>'+String.fromCharCode(65+x.opts.indexOf(d))+' · '+d[2]+'</td>'+
+      '<td class="'+(mOk[i]?'ok':'no')+'">'+(x.ans[i]==null?'–':String.fromCharCode(65+x.ans[i]))+(mOk[i]?' ✓':' ✗')+'</td>'+
+      '<td class="'+(wOk[i]?'ok':'no')+'">'+(x.marks[i]==null?'not written ✗':x.marks[i]+' wrong stroke'+(x.marks[i]===1?'':'s')+(wOk[i]?' ✓':' ✗'))+'</td></tr>').join('')+'</table>'+
+    '<p class="mute">Tap a character to see its stroke order.</p><div style="display:flex;gap:6px"><button id="xa">Try again</button><button id="xm">Levels</button><button id="xq">Close</button></div>';
+  EX.querySelectorAll('tr').forEach((r,i)=>{if(i)r.cells[1].style.cursor='pointer',r.cells[1].onclick=()=>open(x.qs[i-1]);});
+  xa.onclick=()=>exStart(x.lv);xm.onclick=exam;xq.onclick=exShut;
+}
+build(false);
+// portrait/phone: 5 columns so cards stay readable
+const st=document.createElement('style');st.textContent='@media (orientation:portrait){.row{grid-template-columns:repeat(5,1fr)}.lesson{flex:var(--w,2)}.tag{display:none}}';document.head.append(st);
+</script>
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
+</body>
+</html>

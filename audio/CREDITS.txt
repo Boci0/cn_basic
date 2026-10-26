@@ -1,0 +1,18 @@
+Single-character clips (an1.ogg ... zhe4.ogg) and the vocab words below: native recordings from Wikimedia Commons.
+The original character clips are Shtooka recordings by Wei Gao (Copyright 2006 Wei Gao, Vion Nicolas, CC BY 2.0 fr).
+
+duibuqi.ogg  对不起  Wei Gao, Vion Nicolas, CC BY 2.0 fr  https://upload.wikimedia.org/wikipedia/commons/4/43/Zh-du%C3%ACbuq%C7%90.ogg
+meiguanxi.ogg  没关系  Wei Gao, Vion Nicolas, CC BY 2.0 fr  https://upload.wikimedia.org/wikipedia/commons/2/2f/Zh-m%C3%A9igu%C4%81nxi.ogg
+xiexie.ogg  谢谢  Wei Gao, Vion Nicolas, CC BY 2.0 fr  https://upload.wikimedia.org/wikipedia/commons/1/1f/Zh-xi%C3%A8xie.ogg
+keqi.ogg  客气  Wei Gao, Vion Nicolas, CC BY 2.0 fr  https://upload.wikimedia.org/wikipedia/commons/2/21/Zh-k%C3%A8qi.ogg
+zaijian.ogg  再见  Wei Gao, Vion Nicolas, CC BY 2.0 fr  https://upload.wikimedia.org/wikipedia/commons/a/a0/Zh-z%C3%A0iji%C3%A0n.ogg
+tongxue.ogg  同学  Wei Gao, Vion Nicolas, CC BY 2.0 fr  https://upload.wikimedia.org/wikipedia/commons/7/73/Zh-t%C3%B3ngxu%C3%A9.ogg
+wanshang.ogg  晚上  Wei Gao, Vion Nicolas, CC BY 2.0 fr  https://upload.wikimedia.org/wikipedia/commons/7/75/Zh-w%C7%8Enshang.ogg
+xiawu.ogg  下午  Wei Gao, Vion Nicolas, CC BY 2.0 fr  https://upload.wikimedia.org/wikipedia/commons/d/d7/Zh-xi%C3%A0w%C7%94.ogg
+juede.ogg  觉得  Wei Gao, Vion Nicolas, CC BY 2.0 fr  https://upload.wikimedia.org/wikipedia/commons/f/fa/Zh-ju%C3%A9de.ogg
+zenmeyang.ogg  怎么样  Wei Gao, Vion Nicolas, CC BY 2.0 fr  https://upload.wikimedia.org/wikipedia/commons/1/17/Zh-z%C4%9Bnmey%C3%A0ng.ogg
+gaoxing.ogg  高兴  Wei Gao, Vion Nicolas, CC BY 2.0 fr  https://upload.wikimedia.org/wikipedia/commons/0/0e/Zh-g%C4%81ox%C3%ACng.ogg
+nage.ogg  那个  Wei Gao, Vion Nicolas, CC BY 2.0 fr  https://upload.wikimedia.org/wikipedia/commons/0/0b/Zh-n%C3%A0ge.ogg
+yinhang.ogg  银行  Wei Gao, Vion Nicolas, CC BY 2.0 fr  https://upload.wikimedia.org/wikipedia/commons/7/77/Zh-y%C3%ADnh%C3%A1ng.ogg
+
+Every other vocab clip (nihao, nihaoma, zaoan, bukeqi, jiuming, a, wuan, ne, ye3, xue2, laoshi, wanshanghao, nin2, zaoshang, zaoshanghao, zhongwu, zhongwuhao, xiawuhao, bangwan, bangwanhao, wanan, ke3, youdianr, jile, lei4, you4, dou1, xihuan, ge4, zhege, na4, xiang3, qu4, shangdian, bianlidian, mai3, dongxi, yao4, yiqi, xiuxi, nali, youju, ji4, kuaidi, yiyuan, kan4, yisheng, shuzi, ling2, bai3, shijian, nian2, yue4, hao4, xingqi, dian3, fen1) was generated with the Microsoft Edge neural voice zh-CN-XiaoxiaoNeural, not a human recording.
