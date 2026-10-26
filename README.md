@@ -9,7 +9,7 @@ A study sheet for the 49 compulsory characters of lessons 1–5, plus the lesson
 - **Assessment** practises the real Assessment 1 format, level by level:
   1. Listen drill: hear a character, pick its meaning.
   2. Write drill: see the meaning, write the character.
-  3. Mock test: a lettered English list, 10 characters read aloud, then 10 to write in 15 minutes, scored out of 15%.
+  3. Mock test: a lettered English list (A–T), 10 items read aloud (characters, words like 没关系 and numbers like 三十), then all 10 to write in 10 minutes, scored out of 15%.
 
   Each level unlocks after 8/10 on both parts of the previous level's mock test.
 

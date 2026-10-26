@@ -88,6 +88,14 @@ let writers=[],cur,ag=0,sg=0; // generation counters: callbacks from an older wo
 function playAll(i=0,g=++ag){if(g!==ag||i>=writers.length)return;const w=writers[i];if(!w)return playAll(i+1,g);w.animateCharacter({onComplete:()=>playAll(i+1,g)});}
 let vocab=false;
 const ALL=L.flatMap(l=>l[1]);
+// the assessment reads words too (没关系, 不客气, 三十…), but only ones built from the compulsory characters
+const WORDS=V.flatMap(l=>l[1]).filter(d=>[...d[0]].length>1&&[...d[0]].every(c=>ALL.some(a=>a[0]===c)));
+const ZD='一二三四五六七八九',PY=c=>ALL.find(a=>a[0]===c)[1];
+const EN=['','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'],
+  TENS=['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+function num(n){const t=Math.floor(n/10),o=n%10,z=(t>1?ZD[t-1]:'')+'十'+(o?ZD[o-1]:'');
+  return [z,[...z].map(PY).join(''),(n<20?EN[n]:TENS[t]+(o?'-'+EN[o]:''))+' ('+n+')',null];}
+const sk=d=>d[1].replace(/[\s']/g,'').toLowerCase(); // same sound = same pinyin with tones (他/她 tā, 一/医 yī)
 // difficulty = most strokes in any character of the card
 const SC=d=>Math.max(...[...d[0]].map(c=>STROKES[c]?STROKES[c].strokes.length:9));
 const TIER=[['Easy',5],['Mid',7],['Hard',99]],tier=d=>TIER.findIndex(t=>SC(d)<=t[1]);
@@ -171,8 +179,8 @@ lvb.onclick=()=>{lvb.classList.toggle('on');sh.dataset.s='';sh.classList.remove(
 mode.onclick=()=>{vocab=!vocab;mode.textContent=vocab?'Chars':'Vocab';mode.classList.toggle('on',vocab);sh.dataset.s='';sh.classList.remove('on');build(false)};
 sh.onclick=()=>{sh.dataset.s=sh.dataset.s==='1'?'':'1';sh.classList.toggle('on');lvb.classList.remove('on');build(sh.dataset.s==='1')};
 
-// Assessment practice, same format as Assessment 1: read the lettered English list (30 s), hear 10 characters and pick
-// the meaning, then write all 10 (15 min). Levels add harder characters; the next unlocks at 8/10 on both parts.
+// Assessment practice, same format as Assessment 1: read the lettered English list (30 s), hear 10 items and pick
+// the meaning, then write all 10 (10 min). Levels add harder characters; the next unlocks at 8/10 on both parts.
 const EX=document.getElementById('ex'),LVL=['Level 1 · Easy (1–5 strokes)','Level 2 · + Mid (up to 7 strokes)','Level 3 · all 49'];
 let xg=0,xw=null,exKey=null; // xg: bumps on every screen change so old timers stop
 const store=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){}};
@@ -190,7 +198,7 @@ function exam(){
 // Drills: one character at a time with instant feedback. A miss goes back into the queue 3 places later,
 // so it keeps returning until answered right; the round ends when every character has been got right once.
 function drill(lv,write){
-  const pool=ALL.filter(d=>tier(d)===lv),q=pool.slice().sort(()=>Math.random()-.5),st={done:0,miss:0,n:pool.length};
+  const pool=[...ALL,...WORDS].filter(d=>tier(d)===lv),q=pool.slice().sort(()=>Math.random()-.5),st={done:0,miss:0,n:pool.length};
   const next=()=>{if(!q.length)return drillEnd(lv,write,st);const d=q.shift();(write?drillWrite:drillListen)(d,ok=>{if(ok)st.done++;else{st.miss++;q.splice(Math.min(3,q.length),0,d);}next();},st,pool);};
   next();
 }
@@ -198,7 +206,7 @@ function drillHead(write,st){return '<h2>'+(write?'2 · Write drill':'1 · Liste
 function drillListen(d,done,st,pool){
   xg++;const g=xg;
   // 3 wrong options that do not sound the same as the answer
-  const wrong=pool.filter(o=>CL[o[0]]!==CL[d[0]]).sort(()=>Math.random()-.5).slice(0,3),opts=[d,...wrong].sort(()=>Math.random()-.5);
+  const wrong=pool.filter(o=>sk(o)!==sk(d)).sort(()=>Math.random()-.5).slice(0,3),opts=[d,...wrong].sort(()=>Math.random()-.5);
   EX.innerHTML=drillHead(false,st)+'<div class="big">🔊</div><button id="xr">Hear again (space)</button><div class="letters" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr))">'+
     opts.map((o,j)=>'<button data-j="'+j+'" style="font-size:16px">'+String.fromCharCode(65+j)+' · '+o[2]+'</button>').join('')+'</div><div id="fb" style="text-align:center;min-height:90px"></div><button id="xm">Back to levels</button>';
   const hear=()=>say(d[0]);xr.onclick=hear;xm.onclick=exam;setTimeout(()=>g===xg&&hear(),300);
@@ -213,16 +221,14 @@ function drillListen(d,done,st,pool){
 }
 function drillWrite(d,done,st){
   xg++;exKey=null;const g=xg;
-  EX.innerHTML=drillHead(true,st)+'<div style="font-size:20px"><b>'+d[2]+'</b> · <span style="color:var(--acc)">'+d[1]+'</span></div><div id="qw"></div><div id="fb" class="mute" style="min-height:20px">Write the character. A hint shows after a wrong stroke.</div>'+
+  EX.innerHTML=drillHead(true,st)+'<div style="font-size:20px"><b>'+d[2]+'</b> · <span style="color:var(--acc)">'+d[1]+'</span></div><div id="qw"></div><div id="fb" class="mute" style="min-height:20px">Write it. A hint shows after a wrong stroke.</div>'+
     '<div style="display:flex;gap:6px"><button id="xr">🔊 Hear</button><button id="xs">Show me how</button><button id="xm">Back to levels</button></div>';
-  const w=Math.min(260,innerWidth-40);qw.style.width=qw.style.height=w+'px';
-  xw=HanziWriter.create(qw,d[0],{charDataLoader:(c,ok)=>ok(STROKES[c]),width:w,height:w,padding:10,showCharacter:false,showOutline:false,showHintAfterMisses:1,drawingWidth:24,strokeColor:'#222',drawingColor:'#333'});
-  const quiz=()=>xw.quiz({onComplete:r=>{if(g!==xg)return;const ok=r.totalMistakes<=1;
-    fb.innerHTML=ok?'<span class="ok">✓ '+d[0]+' done</span>':'<span class="no">'+r.totalMistakes+' wrong strokes, it will come back</span>';setTimeout(()=>g===xg&&done(ok),ok?800:1600);}});
-  quiz();say(d[0]);xr.onclick=()=>say(d[0]);xm.onclick=exam;
+  let shown=false;
+  const p=pad(d[0],1,m=>{if(g!==xg)return;const t=m.reduce((a,b)=>a+b,0),ok=!shown&&Math.max(...m)<=1;
+    fb.innerHTML=ok?'<span class="ok">✓ '+d[0]+' done</span>':'<span class="no">'+(shown?'Good. ':t+' wrong strokes, ')+'it will come back</span>';setTimeout(()=>g===xg&&done(ok),ok?800:1600);});
+  say(d[0]);xr.onclick=()=>say(d[0]);xm.onclick=exam;
   // watching the answer counts as a miss, then they write it themselves
-  let shown=false;xs.onclick=()=>{if(g!==xg)return;shown=true;xw.cancelQuiz();xw.animateCharacter({onComplete:()=>{if(g!==xg)return;xw.hideCharacter();fb.textContent='Now you write it.';
-    xw.quiz({onComplete:()=>{if(g===xg)setTimeout(()=>g===xg&&done(false),800);}});}});};
+  xs.onclick=()=>{if(g!==xg||shown)return;shown=true;p.show(()=>{fb.textContent='Now you write it.';p.again();});};
 }
 function drillEnd(lv,write,st){
   xg++;exKey=null;
@@ -231,9 +237,10 @@ function drillEnd(lv,write,st){
   xa.onclick=()=>drill(lv,write);xn.onclick=()=>write?exStart(lv):drill(lv,true);xm.onclick=exam;
 }
 function exStart(lv){
-  const pool=ALL.filter(d=>tier(d)<=lv).sort(()=>Math.random()-.5),pick=[];
-  // no two items that sound the same (他/她 tā, 一/医 yī), or the listening question has two right answers
-  for(const d of pool)if(pick.length<14&&!pick.some(p=>CL[p[0]]===CL[d[0]]))pick.push(d);
+  const nums=[];while(nums.length<8){const n=11+Math.floor(Math.random()*89);if(!nums.includes(n))nums.push(n);}
+  const pool=[...ALL,...WORDS].filter(d=>tier(d)<=lv).concat(nums.map(num)).sort(()=>Math.random()-.5),pick=[];
+  // no two items that sound the same or share a meaning, or a listening question has two right answers
+  for(const d of pool)if(pick.length<20&&!pick.some(p=>sk(p)===sk(d)||p[2]===d[2]))pick.push(d);
   const qs=pick.slice(0,10),opts=pick.slice().sort(()=>Math.random()-.5);
   const x={lv,qs,opts,ans:[],marks:[]};
   xg++;exKey=null;EX.innerHTML='<h2>Part 1 · read the list</h2><p class="mute">Listening starts in <b id="xt"></b></p><ol>'+
@@ -252,25 +259,33 @@ function exListen(x,i){
     x.ans[i]=+b.dataset.j;b.classList.add('pick');bs.forEach(o=>o.disabled=o!==b);setTimeout(()=>g===xg&&exListen(x,i+1),300);});
   exKey=k=>{const j=k.toUpperCase().charCodeAt(0)-65;if(k.length===1&&bs[j])bs[j].click();else if(k===' ')hear();};
 }
+function pad(word,hints,done){
+  const cs=[...word],w=Math.min(240,Math.floor((Math.min(innerWidth,700)-40)/cs.length)-6),ws=[],miss=[];
+  qw.style.cssText='display:flex;gap:6px;background:none;border:0';
+  cs.forEach(c=>{const el=document.createElement('div');el.style.cssText='width:'+w+'px;height:'+w+'px;background:#fff;border:1px solid var(--line);border-radius:8px;touch-action:none;background-image:linear-gradient(#e8d0d0 1px,transparent 1px),linear-gradient(90deg,#e8d0d0 1px,transparent 1px);background-size:50% 50%';qw.append(el);
+    ws.push(HanziWriter.create(el,c,{charDataLoader:(k,ok)=>ok(STROKES[k]),width:w,height:w,padding:8,showCharacter:false,showOutline:false,showHintAfterMisses:hints,drawingWidth:Math.max(14,w/10),strokeColor:'#222',drawingColor:'#333'}));});
+  const g=xg,run=i=>{if(g!==xg)return;if(i>=ws.length)return done(miss);xw=ws[i];ws[i].quiz({onComplete:r=>{miss[i]=r.totalMistakes;run(i+1);}});};
+  run(0);
+  return {show(after){ws.forEach(v=>v.cancelQuiz());const a=i=>{if(g!==xg)return;if(i>=ws.length){ws.forEach(v=>v.hideCharacter());return after();}ws[i].animateCharacter({onComplete:()=>a(i+1)});};a(0);},
+    again(){miss.length=0;run(0);}};
+}
 function exWrite(x,i){
   exKey=null;
-  if(i===0){x.end=Date.now()+15*60*1000;}
+  if(i===0){x.end=Date.now()+10*60*1000;}
   if(i>=10||Date.now()>=x.end)return exResult(x);
   xg++;const a=x.ans[i],d=x.qs[i];
-  EX.innerHTML='<h2>Part 2 · write '+(i+1)+' of 10</h2><p class="mute">Time left <b id="xt"></b> · write the character you heard for question '+(i+1)+
+  EX.innerHTML='<h2>Part 2 · write '+(i+1)+' of 10</h2><p class="mute">Time left <b id="xt"></b> · write what you heard for question '+(i+1)+
     '<br>You chose <b>'+String.fromCharCode(65+a)+'</b> · '+x.opts[a][2]+'</p><div id="qw"></div>'+
     '<div style="display:flex;gap:6px"><button id="xr">🔊 hint (not allowed in the real test)</button><button id="xk">I can\'t write it</button></div>';
   tick(Math.ceil((x.end-Date.now())/1000),xt,()=>exResult(x));
-  const w=Math.min(260,innerWidth-40);qw.style.width=qw.style.height=w+'px';
-  xw=HanziWriter.create(qw,d[0],{charDataLoader:(c,ok)=>ok(STROKES[c]),width:w,height:w,padding:10,showCharacter:false,showOutline:false,showHintAfterMisses:3,drawingWidth:24,strokeColor:'#222',drawingColor:'#333'});
-  const g=xg;xw.quiz({onComplete:r=>{x.marks[i]=r.totalMistakes;setTimeout(()=>g===xg&&exWrite(x,i+1),700);}});
+  const g=xg;pad(d[0],3,m=>{x.marks[i]=m;setTimeout(()=>g===xg&&exWrite(x,i+1),700);});
   xr.onclick=()=>say(d[0]);xk.onclick=()=>{if(g===xg){x.marks[i]=null;exWrite(x,i+1);}};
-  xk.disabled=true;setTimeout(()=>xk.disabled=false,500); // a double-click on the previous screen must not skip this one too
+  const kb=xk;kb.disabled=true;setTimeout(()=>kb.disabled=false,500); // a double-click on the previous screen must not skip this one too
 }
 function exResult(x){
   xg++;exKey=null;hush();
-  // a written character counts if drawn with at most 2 wrong strokes (the hint shows after 3)
-  const mOk=x.qs.map((d,i)=>x.opts[x.ans[i]]===d),wOk=x.qs.map((d,i)=>x.marks[i]!=null&&x.marks[i]<=2);
+  // a written item counts if each character has at most 2 wrong strokes (the hint shows after 3)
+  const mOk=x.qs.map((d,i)=>x.opts[x.ans[i]]===d),wOk=x.qs.map((d,i)=>x.marks[i]!=null&&Math.max(...x.marks[i])<=2);
   const m=mOk.filter(Boolean).length,w=wOk.filter(Boolean).length,pass=m>=8&&w>=8;
   if(pass&&x.lv<2&&unlocked()<=x.lv)store('lvl',x.lv+1);
   EX.innerHTML='<h2>'+LVL[x.lv]+' · result</h2><div class="big">'+(m*.5+w)+' / 15%</div><p class="mute">Meaning '+m+'/10 (0.5% each) · Writing '+w+'/10 (1% each)'+
@@ -278,7 +293,7 @@ function exResult(x){
     '<table><tr><th>#</th><th>Heard</th><th>Meaning</th><th>You picked</th><th>Written</th></tr>'+x.qs.map((d,i)=>
       '<tr><td>'+(i+1)+'</td><td style="font-size:22px">'+d[0]+' <small>'+d[1]+'</small></td><td>'+String.fromCharCode(65+x.opts.indexOf(d))+' · '+d[2]+'</td>'+
       '<td class="'+(mOk[i]?'ok':'no')+'">'+(x.ans[i]==null?'–':String.fromCharCode(65+x.ans[i]))+(mOk[i]?' ✓':' ✗')+'</td>'+
-      '<td class="'+(wOk[i]?'ok':'no')+'">'+(x.marks[i]==null?'not written ✗':x.marks[i]+' wrong stroke'+(x.marks[i]===1?'':'s')+(wOk[i]?' ✓':' ✗'))+'</td></tr>').join('')+'</table>'+
+      '<td class="'+(wOk[i]?'ok':'no')+'">'+(x.marks[i]==null?'not written ✗':(t=>t+' wrong stroke'+(t===1?'':'s'))(x.marks[i].reduce((a,b)=>a+b,0))+(wOk[i]?' ✓':' ✗'))+'</td></tr>').join('')+'</table>'+
     '<p class="mute">Tap a character to see its stroke order.</p><div style="display:flex;gap:6px"><button id="xa">Try again</button><button id="xm">Levels</button><button id="xq">Close</button></div>';
   EX.querySelectorAll('tr').forEach((r,i)=>{if(i)r.cells[1].style.cursor='pointer',r.cells[1].onclick=()=>open(x.qs[i-1]);});
   xa.onclick=()=>exStart(x.lv);xm.onclick=exam;xq.onclick=exShut;
