@@ -5,14 +5,14 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#b3261e">
 <link rel="icon" href="icon.svg">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Mandarin L1-5 Sheet</title>
 <style>
 :root{--bg:#f6f3ec;--card:#fff;--ink:#1d1d1f;--mute:#6b6b70;--line:#ddd6c6;--acc:#b3261e;--flag:#d98200}
 @media (prefers-color-scheme:dark){:root{--bg:#161616;--card:#222;--ink:#f1efe9;--mute:#9a9a9f;--line:#3a3a3a;--acc:#ff7a70;--flag:#ffb347}}
 *{box-sizing:border-box;margin:0}
 html,body{height:100%;overflow:hidden}
-body{background:var(--bg);color:var(--ink);font:14px system-ui,sans-serif;display:flex;flex-direction:column;padding:6px;gap:5px}
+body{background:var(--bg);color:var(--ink);font:14px system-ui,sans-serif;display:flex;flex-direction:column;padding:max(6px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));gap:5px}
 header{display:flex;align-items:center;gap:8px;flex:none;font-size:13px}
 header b{font-size:15px}
 header span{color:var(--mute);flex:1}
@@ -33,10 +33,10 @@ button:focus-visible,.c:focus-visible{outline:2px solid var(--acc);outline-offse
 .c{position:relative;background:var(--card);border:1px solid var(--line);border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;min-height:0;overflow:hidden;line-height:1.15;padding:2px}
 .c:hover{border-color:var(--acc)}
 .c .h{font-size:calc(clamp(22px,4.6vmin,52px) * var(--k,1));white-space:nowrap;font-family:"Noto Serif SC","Songti SC","SimSun",serif}
-.c .p{font-size:clamp(11px,1.9vmin,17px);color:var(--acc);font-weight:600}
-.c .e{font-size:clamp(9px,1.6vmin,14px);color:var(--mute);text-align:center}
+.c .p{font-size:clamp(12px,1.9vmin,17px);color:var(--acc);font-weight:600}
+.c .e{font-size:clamp(10px,1.6vmin,14px);color:var(--mute);text-align:center}
 .c.f::after{content:"⚑";position:absolute;top:1px;right:3px;font-size:11px;color:var(--flag)}
-#ex{position:fixed;inset:0;background:var(--bg);display:none;flex-direction:column;align-items:center;gap:10px;padding:12px;overflow:auto;z-index:8}
+#ex{position:fixed;inset:0;background:var(--bg);display:none;flex-direction:column;align-items:center;gap:10px;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));overflow:auto;z-index:8}
 #ex.open{display:flex}
 #ex h2{font-size:18px}#ex .mute{color:var(--mute);font-size:13px;text-align:center}
 #ex ol{list-style:none;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:4px 14px;width:min(100%,640px)}
@@ -49,15 +49,18 @@ button:focus-visible,.c:focus-visible{outline:2px solid var(--acc);outline-offse
  background-image:linear-gradient(#e8d0d0 1px,transparent 1px),linear-gradient(90deg,#e8d0d0 1px,transparent 1px);background-size:50% 50%}
 #ex table{border-collapse:collapse;font-size:14px}#ex td,#ex th{border-bottom:1px solid var(--line);padding:4px 8px;text-align:center}
 .ok{color:#2e7d32}.no{color:var(--acc)}
-#dlg{position:fixed;inset:0;background:#0007;display:none;align-items:center;justify-content:center;z-index:9}
+#dlg{position:fixed;inset:0;background:#0007;display:none;align-items:center;justify-content:center;z-index:9;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
 #dlg.open{display:flex}
-#box{background:var(--card);border-radius:12px;padding:14px;width:min(94vw,420px);max-height:96vh;overflow:auto;display:flex;flex-direction:column;gap:8px;align-items:center}
+#box{background:var(--card);border-radius:12px;padding:14px;width:min(94vw,420px);max-height:96vh;max-height:96dvh;overflow:auto;display:flex;flex-direction:column;gap:8px;align-items:center}
 #hw{display:flex;gap:4px;justify-content:center}
 #hw>div{background:#fff;border:1px solid var(--line);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#222;font-size:60px;
  background-image:linear-gradient(#e8d0d0 1px,transparent 1px),linear-gradient(90deg,#e8d0d0 1px,transparent 1px);background-size:50% 50%}
 #note{background:#fff3df;color:#5a3a00;border-radius:6px;padding:6px 8px;font-size:12.5px;width:100%}
 #links{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
 #links a{color:var(--acc);font-size:13px}
+/* phones: tap targets >=44px, header wraps to two rows, 5-column grid (was a runtime style), nothing scrolls sideways */
+@media (max-width:600px){button{min-height:44px}header{flex-wrap:wrap}header span{flex:1 1 70%;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}header button{flex:1 0 0;padding:3px 4px}#ex .letters{grid-template-columns:repeat(auto-fill,minmax(48px,1fr))}#ex table{font-size:13px;width:100%}#ex td,#ex th{padding:4px 3px}#links a{padding:10px 6px}#box>div{flex-wrap:wrap;justify-content:center;max-width:100%}}
+@media (orientation:portrait){.row{grid-template-columns:repeat(5,1fr)}.lesson{flex:var(--w,2)}.tag{display:none}}
 </style>
 </head>
 <body>
@@ -159,7 +162,7 @@ function open(d){
    '<a target="_blank" rel="noopener" href="https://forvo.com/word/'+c+'/#zh">Forvo (native audio)</a>';
   hw.innerHTML='';writers=[];
   const cs=[...d[0]];
-  const w=Math.min(200,Math.floor(380/cs.length));
+  const w=Math.min(200,Math.floor(Math.min(380,innerWidth*.94-34)/cs.length));
   cs.forEach(ch=>{
     const el=document.createElement('div');el.style.width=el.style.height=w+'px';hw.append(el);
     if(!STROKES[ch]){el.textContent=ch;el.style.fontSize=w*.6+'px';writers.push(null);return;} // no stroke data bundled for this character
@@ -299,8 +302,6 @@ function exResult(x){
   xa.onclick=()=>exStart(x.lv);xm.onclick=exam;xq.onclick=exShut;
 }
 build(false);
-// portrait/phone: 5 columns so cards stay readable
-const st=document.createElement('style');st.textContent='@media (orientation:portrait){.row{grid-template-columns:repeat(5,1fr)}.lesson{flex:var(--w,2)}.tag{display:none}}';document.head.append(st);
 </script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
 </body>
