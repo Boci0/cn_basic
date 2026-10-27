@@ -135,17 +135,24 @@ function say(t){
   // 0) native clip from ./audio (Wikimedia Commons), falling back to the voice below
   const f=CL[t];
   if(f){const c=aud=new Audio('audio/'+f+'.ogg');c.onerror=()=>{if(g===sg)tts(t,g)};c.play().catch(()=>{if(g===sg)tts(t,g)});return;}
+  // words with no clip of their own (the numbers): chain the character clips, which starts faster than a phone's voice
+  const fs=clips(t);if(fs.every(Boolean))return chain(fs,g);
   tts(t,g);
+}
+const clips=t=>[...t].filter(c=>c!=='儿').map(c=>CL[c]); // 儿 in 点儿 is the -r ending, not a syllable
+function chain(fs,g){
+  // shortcut: clips use dictionary tones, so tone changes like bú/yì and neutral tones are not heard; bundle word clips to upgrade
+  const as=fs.map(f=>new Audio('audio/'+f+'.ogg')); // all load at once so there is no gap between syllables
+  const next=i=>{if(g!==sg||i>=as.length)return;aud=as[i];as[i].onended=()=>next(i+1);as[i].play().catch(()=>{});};
+  next(0);
 }
 function tts(t,g){
   // 1) a Mandarin voice (zh-HK is Cantonese, so it goes last), 2) fallback: the bundled clips one character at a time
   const vs=(window.speechSynthesis?speechSynthesis.getVoices():[]).filter(v=>/^zh/i.test(v.lang));
   const v=vs.find(v=>/^zh[-_]CN$/i.test(v.lang))||vs.find(v=>!/HK/i.test(v.lang))||vs[0];
-  const fb=()=>{if(g!==sg)return;const fs=[...t].filter(c=>c!=='儿').map(c=>CL[c]); // 儿 in 点儿 is the -r ending, not a syllable
-    // shortcut: clips use dictionary tones, so tone changes like bú/yì and neutral tones are not heard; bundle word clips to upgrade
+  const fb=()=>{if(g!==sg)return;const fs=clips(t);
     if(!fs.every(Boolean))return alert('No sound: this browser has no Mandarin voice. Use the Forvo link, or install Chinese (Simplified) with speech in Windows Settings > Time & language > Language & region.');
-    const next=i=>{if(g!==sg||i>=fs.length)return;const a=aud=new Audio('audio/'+fs[i]+'.ogg');a.onended=()=>next(i+1);a.play().catch(()=>{});};
-    next(0);};
+    chain(fs,g);};
   if(!v)return fb();
   const u=new SpeechSynthesisUtterance(t);u.voice=v;u.lang=v.lang;u.rate=.8;u.onerror=fb;
   speechSynthesis.speak(u);
