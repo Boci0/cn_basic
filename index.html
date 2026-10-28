@@ -281,7 +281,7 @@ function pad(word,hints,done){
   w=Math.floor(Math.min(w,440));
   qw.style.cssText='display:flex;flex-wrap:wrap;justify-content:center;max-width:100%;gap:6px;background:none;border:0';
   cs.forEach(c=>{const el=document.createElement('div');el.style.cssText='width:'+w+'px;height:'+w+'px;background:#fff;border:1px solid var(--line);border-radius:8px;touch-action:none;background-image:linear-gradient(#e8d0d0 1px,transparent 1px),linear-gradient(90deg,#e8d0d0 1px,transparent 1px);background-size:50% 50%';qw.append(el);
-    ws.push(HanziWriter.create(el,c,{charDataLoader:(k,ok)=>ok(STROKES[k]),width:w,height:w,padding:8,showCharacter:false,showOutline:false,showHintAfterMisses:hints,leniency:2,drawingWidth:Math.max(14,w/10),strokeColor:'#222',drawingColor:'#333'}));});
+    ws.push(HanziWriter.create(el,c,{charDataLoader:(k,ok)=>ok(STROKES[k]),width:w,height:w,padding:8,showCharacter:false,showOutline:false,showHintAfterMisses:hints,leniency:1.25,drawingWidth:Math.max(14,w/10),strokeColor:'#222',drawingColor:'#333'}));});
   const g=xg,run=i=>{if(g!==xg)return;if(i>=ws.length)return done(miss);xw=ws[i];ws[i].quiz({onComplete:r=>{miss[i]=r.totalMistakes;run(i+1);}});};
   run(0);
   return {show(after){ws.forEach(v=>v.cancelQuiz());const a=i=>{if(g!==xg)return;if(i>=ws.length){ws.forEach(v=>v.hideCharacter());return after();}ws[i].animateCharacter({onComplete:()=>a(i+1)});};a(0);},
