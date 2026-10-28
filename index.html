@@ -38,6 +38,7 @@ button:focus-visible,.c:focus-visible{outline:2px solid var(--acc);outline-offse
 .c.f::after{content:"⚑";position:absolute;top:1px;right:3px;font-size:11px;color:var(--flag)}
 #ex{position:fixed;inset:0;background:var(--bg);display:none;flex-direction:column;align-items:center;gap:10px;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));overflow:auto;z-index:8}
 #ex.open{display:flex}
+@media (min-width:700px){#ex{justify-content:safe center}} /* safe: tall pages still scroll from the top */
 #ex h2{font-size:18px}#ex .mute{color:var(--mute);font-size:13px;text-align:center}
 #ex ol{list-style:none;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:4px 14px;width:min(100%,640px)}
 #ex ol b{color:var(--acc);display:inline-block;width:22px}
@@ -275,10 +276,12 @@ function exListen(x,i){
   exKey=k=>{const j=k.toUpperCase().charCodeAt(0)-65;if(k.length===1&&bs[j])bs[j].click();else if(k===' ')hear();};
 }
 function pad(word,hints,done){
-  const cs=[...word],w=Math.min(innerHeight>innerWidth?340:240,Math.floor((Math.min(innerWidth,700)-40)/cs.length)-6),ws=[],miss=[];
-  qw.style.cssText='display:flex;gap:6px;background:none;border:0';
+  const cs=[...word],W=Math.min(innerWidth,700)-32,H=innerHeight-260,ws=[],miss=[];let w=0;
+  for(let c=1;c<=cs.length;c++)w=Math.max(w,Math.min(W/c,H/Math.ceil(cs.length/c))-6); // pick the column count that gives the biggest pads
+  w=Math.floor(Math.min(w,440));
+  qw.style.cssText='display:flex;flex-wrap:wrap;justify-content:center;max-width:100%;gap:6px;background:none;border:0';
   cs.forEach(c=>{const el=document.createElement('div');el.style.cssText='width:'+w+'px;height:'+w+'px;background:#fff;border:1px solid var(--line);border-radius:8px;touch-action:none;background-image:linear-gradient(#e8d0d0 1px,transparent 1px),linear-gradient(90deg,#e8d0d0 1px,transparent 1px);background-size:50% 50%';qw.append(el);
-    ws.push(HanziWriter.create(el,c,{charDataLoader:(k,ok)=>ok(STROKES[k]),width:w,height:w,padding:8,showCharacter:false,showOutline:false,showHintAfterMisses:hints,drawingWidth:Math.max(14,w/10),strokeColor:'#222',drawingColor:'#333'}));});
+    ws.push(HanziWriter.create(el,c,{charDataLoader:(k,ok)=>ok(STROKES[k]),width:w,height:w,padding:8,showCharacter:false,showOutline:false,showHintAfterMisses:hints,leniency:2,drawingWidth:Math.max(14,w/10),strokeColor:'#222',drawingColor:'#333'}));});
   const g=xg,run=i=>{if(g!==xg)return;if(i>=ws.length)return done(miss);xw=ws[i];ws[i].quiz({onComplete:r=>{miss[i]=r.totalMistakes;run(i+1);}});};
   run(0);
   return {show(after){ws.forEach(v=>v.cancelQuiz());const a=i=>{if(g!==xg)return;if(i>=ws.length){ws.forEach(v=>v.hideCharacter());return after();}ws[i].animateCharacter({onComplete:()=>a(i+1)});};a(0);},
