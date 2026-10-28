@@ -60,7 +60,12 @@ button:focus-visible,.c:focus-visible{outline:2px solid var(--acc);outline-offse
 #links a{color:var(--acc);font-size:13px}
 /* phones: tap targets >=44px, header wraps to two rows, 5-column grid (was a runtime style), nothing scrolls sideways */
 @media (max-width:600px){button{min-height:44px}header{flex-wrap:wrap}header span{flex:1 1 70%;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}header button{flex:1 0 0;padding:3px 4px}#ex .letters{grid-template-columns:repeat(auto-fill,minmax(48px,1fr))}#ex table{font-size:13px;width:100%}#ex td,#ex th{padding:4px 3px}#links a{padding:10px 6px}#box>div{flex-wrap:wrap;justify-content:center;max-width:100%}}
-@media (orientation:portrait){.row{grid-template-columns:repeat(5,1fr)}.lesson{flex:var(--w,2)}.tag{display:none}}
+/* portrait: the one-screen fit clips every card (70 vocab cards = 41px each), so the page scrolls instead, header stays on top, lesson name sits above its row */
+@media (orientation:portrait){html,body{height:auto;overflow:visible}body{min-height:100dvh}header{position:sticky;top:0;z-index:2;background:var(--bg);padding:max(6px,env(safe-area-inset-top)) 0 5px;margin-top:calc(-1 * max(6px,env(safe-area-inset-top)))}
+ #m{flex:none!important}.lesson{flex-direction:column;flex:none}.tag{width:auto;justify-content:flex-start;padding:3px 8px;background:none;font-size:12px}
+ .row{grid-template-columns:repeat(5,1fr);grid-auto-rows:minmax(78px,auto)}.c .h{font-size:calc(30px * var(--k,1))}.c .p{font-size:13px}.c .e{font-size:11px}
+ /* listening question: each letter button carries its meaning, so the separate list goes */
+ #ex .letters:has(button[title]){grid-template-columns:1fr 1fr}#ex .letters button[title]{font-size:14px;text-align:left;padding:6px 8px}#ex .letters button[title]::after{content:" · " attr(title)}#ex .letters+ol{display:none}}
 </style>
 </head>
 <body>
@@ -169,7 +174,7 @@ function open(d){
    '<a target="_blank" rel="noopener" href="https://forvo.com/word/'+c+'/#zh">Forvo (native audio)</a>';
   hw.innerHTML='';writers=[];
   const cs=[...d[0]];
-  const w=Math.min(200,Math.floor(Math.min(380,innerWidth*.94-34)/cs.length));
+  const w=Math.min(innerHeight>innerWidth?300:200,Math.floor(Math.min(380,innerWidth*.94-34)/cs.length));
   cs.forEach(ch=>{
     const el=document.createElement('div');el.style.width=el.style.height=w+'px';hw.append(el);
     if(!STROKES[ch]){el.textContent=ch;el.style.fontSize=w*.6+'px';writers.push(null);return;} // no stroke data bundled for this character
@@ -270,7 +275,7 @@ function exListen(x,i){
   exKey=k=>{const j=k.toUpperCase().charCodeAt(0)-65;if(k.length===1&&bs[j])bs[j].click();else if(k===' ')hear();};
 }
 function pad(word,hints,done){
-  const cs=[...word],w=Math.min(240,Math.floor((Math.min(innerWidth,700)-40)/cs.length)-6),ws=[],miss=[];
+  const cs=[...word],w=Math.min(innerHeight>innerWidth?340:240,Math.floor((Math.min(innerWidth,700)-40)/cs.length)-6),ws=[],miss=[];
   qw.style.cssText='display:flex;gap:6px;background:none;border:0';
   cs.forEach(c=>{const el=document.createElement('div');el.style.cssText='width:'+w+'px;height:'+w+'px;background:#fff;border:1px solid var(--line);border-radius:8px;touch-action:none;background-image:linear-gradient(#e8d0d0 1px,transparent 1px),linear-gradient(90deg,#e8d0d0 1px,transparent 1px);background-size:50% 50%';qw.append(el);
     ws.push(HanziWriter.create(el,c,{charDataLoader:(k,ok)=>ok(STROKES[k]),width:w,height:w,padding:8,showCharacter:false,showOutline:false,showHintAfterMisses:hints,drawingWidth:Math.max(14,w/10),strokeColor:'#222',drawingColor:'#333'}));});
