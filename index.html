@@ -199,7 +199,9 @@ const EX=document.getElementById('ex'),LVL=['Level 1 · Easy (1–5 strokes)','L
 // topic tests: one group of cards only; Numbers tops up with generated two-digit numbers
 const TOPICS=[['Numbers','一 二 三 四 五 六 七 八 九 十 零 百'],['Places','银行 邮局 医院 商店 便利店 银 行 邮 局 医 院'],
   ['Greetings','你好 你好吗 早安 早上好 午安 中午好 下午好 晚上好 傍晚好 晚安 再见 谢谢 不客气 对不起 没关系 救命'],['People','你 您 我 他 她 们 老师 同学 医生 客'],
-  ['Time words','早上 中午 下午 傍晚 晚上 时间 年 月 号 星期 点 分'],['Feelings','冷 饿 忙 困 渴 累 高兴 觉得 喜欢 想']];
+  ['Time words','早上 中午 下午 傍晚 晚上 时间 年 月 号 星期 点 分'],['Feelings','冷 饿 忙 困 渴 累 高兴 觉得 喜欢 想']]
+  // only what the real assessment can ask (compulsory characters and words built from them); a topic left empty is dropped
+  .map(([n,w])=>[n,w.split(' ').filter(x=>[...ALL,...WORDS].some(d=>d[0]===x)).join(' ')]).filter(t=>t[1]);
 let xg=0,xw=null,exKey=null; // xg: bumps on every screen change so old timers stop
 const store=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){}};
 const unlocked=()=>+(store('lvl')||0);
@@ -258,7 +260,7 @@ function drillEnd(lv,write,st){
   xa.onclick=()=>drill(lv,write);xn.onclick=()=>write?exStart(lv):drill(lv,true);xm.onclick=exam;
 }
 function exStart(lv,t){
-  const nums=[];while(nums.length<(t?0:8)){const n=11+Math.floor(Math.random()*89);if(!nums.includes(n))nums.push(n);}
+  const nums=[];while(nums.length<(t==null||TOPICS[t][0]==='Numbers'?8:0)){const n=11+Math.floor(Math.random()*89);if(!nums.includes(n))nums.push(n);}
   const cards=[...ALL,...V.flatMap(l=>l[1])],tp=t!=null&&TOPICS[t][1].split(' ').map(w=>cards.find(d=>d[0]===w));
   const pool=(tp||[...ALL,...WORDS].filter(d=>tier(d)<=lv)).concat(nums.map(num)).shuf(),pick=[];
   // no two items that sound the same or share a meaning, or a listening question has two right answers
