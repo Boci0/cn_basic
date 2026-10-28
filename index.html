@@ -74,7 +74,6 @@ button:focus-visible,.c:focus-visible{outline:2px solid var(--acc);outline-offse
   <b>华语 L1–5</b><span id="sub"></span>
   <button id="mode">Vocab</button>
   <button id="lvb">Easy → hard</button>
-  <button id="sh">Shuffle</button>
   <button id="t">Assessment</button>
 </header>
 <main id="m" style="flex:1;min-height:0;display:flex;flex-direction:column;gap:5px"></main>
@@ -105,15 +104,15 @@ const EN=['','one','two','three','four','five','six','seven','eight','nine','ten
 function num(n){const t=Math.floor(n/10),o=n%10,z=(t>1?ZD[t-1]:'')+'十'+(o?ZD[o-1]:'');
   return [z,[...z].map(PY).join(''),(n<20?EN[n]:TENS[t]+(o?'-'+EN[o]:''))+' ('+n+')',null];}
 const sk=d=>d[1].replace(/[\s']/g,'').toLowerCase(); // same sound = same pinyin with tones (他/她 tā, 一/医 yī)
+Object.defineProperty(Array.prototype,"shuf",{value(){const a=this;for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}}); // Fisher-Yates in place; sort(()=>random) leaves cards near where they started
 // difficulty = most strokes in any character of the card
 const SC=d=>Math.max(...[...d[0]].map(c=>STROKES[c]?STROKES[c].strokes.length:9));
 const TIER=[['Easy',5],['Mid',7],['Hard',99]],tier=d=>TIER.findIndex(t=>SC(d)<=t[1]);
-function build(shuffle){
+function build(){
   m.innerHTML='';
   sub.textContent=vocab?'Vocab: words + extra characters from L1–5 · tap a card for sound/strokes · ⚑ = double-check':'49 compulsory characters · tap a card for stroke order + sound · ⚑ = double-check';
   const D=vocab?V:L;
-  if(shuffle){const a=D.flatMap(l=>l[1]).sort(()=>Math.random()-.5),n=Math.ceil(a.length/5);for(let i=0;i<5;i++)add('?',a.slice(i*n,i*n+n));}
-  else if(lvb.classList.contains('on')){const a=D.flatMap(l=>l[1]);TIER.forEach((t,i)=>add(t[0],a.filter(d=>tier(d)===i).sort((x,y)=>SC(x)-SC(y))));}
+  if(lvb.classList.contains('on')){const a=D.flatMap(l=>l[1]);TIER.forEach((t,i)=>add(t[0],a.filter(d=>tier(d)===i).sort((x,y)=>SC(x)-SC(y))));}
   else D.forEach(l=>add(l[0],l[1]));
 }
 function add(name,cards){
@@ -191,13 +190,16 @@ x.onclick=shut;
 dlg.onclick=e=>{if(e.target===dlg)shut()};
 document.onkeydown=e=>{if(e.key!=='Escape'){if(exKey&&EX.classList.contains('open')&&!dlg.classList.contains('open')&&!e.ctrlKey&&!e.metaKey&&!e.altKey){e.preventDefault();exKey(e.key);}return;}if(dlg.classList.contains('open'))shut();else if(EX.classList.contains('open'))exShut();};
 t.onclick=()=>exam();
-lvb.onclick=()=>{lvb.classList.toggle('on');sh.dataset.s='';sh.classList.remove('on');build(false)};
-mode.onclick=()=>{vocab=!vocab;mode.textContent=vocab?'Chars':'Vocab';mode.classList.toggle('on',vocab);sh.dataset.s='';sh.classList.remove('on');build(false)};
-sh.onclick=()=>{sh.dataset.s=sh.dataset.s==='1'?'':'1';sh.classList.toggle('on');lvb.classList.remove('on');build(sh.dataset.s==='1')};
+lvb.onclick=()=>{lvb.classList.toggle('on');build()};
+mode.onclick=()=>{vocab=!vocab;mode.textContent=vocab?'Chars':'Vocab';mode.classList.toggle('on',vocab);build()};
 
 // Assessment practice, same format as Assessment 1: read the lettered English list (30 s), hear 10 items and pick
 // the meaning, then write all 10 (10 min). Levels add harder characters; the next unlocks at 8/10 on both parts.
 const EX=document.getElementById('ex'),LVL=['Level 1 · Easy (1–5 strokes)','Level 2 · + Mid (up to 7 strokes)','Level 3 · all 49'];
+// topic tests: one group of cards only; Numbers tops up with generated two-digit numbers
+const TOPICS=[['Numbers','一 二 三 四 五 六 七 八 九 十 零 百'],['Places','银行 邮局 医院 商店 便利店 银 行 邮 局 医 院'],
+  ['Greetings','你好 你好吗 早安 早上好 午安 中午好 下午好 晚上好 傍晚好 晚安 再见 谢谢 不客气 对不起 没关系 救命'],['People','你 您 我 他 她 们 老师 同学 医生 客'],
+  ['Time words','早上 中午 下午 傍晚 晚上 时间 年 月 号 星期 点 分'],['Feelings','冷 饿 忙 困 渴 累 高兴 觉得 喜欢 想']];
 let xg=0,xw=null,exKey=null; // xg: bumps on every screen change so old timers stop
 const store=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){}};
 const unlocked=()=>+(store('lvl')||0);
@@ -208,13 +210,16 @@ function exam(){
   EX.innerHTML='<h2>Assessment practice</h2><p class="mute">Build up in order: <b>1</b> hear it → pick the meaning, <b>2</b> meaning → write it, <b>3</b> the full mock test.<br>Drills only use the level\'s new characters; misses come back until you get them right.</p>'+
     LVL.map((n,i)=>'<div style="width:min(100%,460px);border:1px solid var(--line);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:6px'+(i>u?';opacity:.5':'')+'"><b>'+(i>u?'🔒 ':'')+n+'</b><div style="display:flex;gap:6px">'+
       ['1 · Listen drill','2 · Write drill','3 · Mock test'].map((t,k)=>'<button data-l="'+i+'" data-k="'+k+'" style="flex:1;padding:9px 4px"'+(i>u?' disabled':'')+'>'+t+'</button>').join('')+'</div></div>').join('')+
-    (u<2?'<p class="mute">Score 8/10 on both parts of a mock test to unlock the next level.</p>':'')+'<button id="xq">Close</button>';
+    (u<2?'<p class="mute">Score 8/10 on both parts of a mock test to unlock the next level.</p>':'')+
+    '<div style="width:min(100%,460px);border:1px solid var(--line);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:6px"><b>Topic tests</b><span class="mute">The same mock test, using one topic only.</span><div style="display:flex;flex-wrap:wrap;gap:6px">'+
+      TOPICS.map((t,i)=>'<button data-t="'+i+'" style="flex:1 1 30%;padding:9px 4px">'+t[0]+'</button>').join('')+'</div></div><button id="xq">Close</button>';
   EX.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{const l=+b.dataset.l,k=+b.dataset.k;k===2?exStart(l):drill(l,k===1);});xq.onclick=exShut;
+  EX.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>exStart(2,+b.dataset.t));
 }
 // Drills: one character at a time with instant feedback. A miss goes back into the queue 3 places later,
 // so it keeps returning until answered right; the round ends when every character has been got right once.
 function drill(lv,write){
-  const pool=[...ALL,...WORDS].filter(d=>tier(d)===lv),q=pool.slice().sort(()=>Math.random()-.5),st={done:0,miss:0,n:pool.length};
+  const pool=[...ALL,...WORDS].filter(d=>tier(d)===lv),q=pool.slice().shuf(),st={done:0,miss:0,n:pool.length};
   const next=()=>{if(!q.length)return drillEnd(lv,write,st);const d=q.shift();(write?drillWrite:drillListen)(d,ok=>{if(ok)st.done++;else{st.miss++;q.splice(Math.min(3,q.length),0,d);}next();},st,pool);};
   next();
 }
@@ -222,7 +227,7 @@ function drillHead(write,st){return '<h2>'+(write?'2 · Write drill':'1 · Liste
 function drillListen(d,done,st,pool){
   xg++;const g=xg;
   // 3 wrong options that do not sound the same as the answer
-  const wrong=pool.filter(o=>sk(o)!==sk(d)).sort(()=>Math.random()-.5).slice(0,3),opts=[d,...wrong].sort(()=>Math.random()-.5);
+  const wrong=pool.filter(o=>sk(o)!==sk(d)).shuf().slice(0,3),opts=[d,...wrong].shuf();
   EX.innerHTML=drillHead(false,st)+'<div class="big">🔊</div><button id="xr">Hear again (space)</button><div class="letters" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr))">'+
     opts.map((o,j)=>'<button data-j="'+j+'" style="font-size:16px">'+String.fromCharCode(65+j)+' · '+o[2]+'</button>').join('')+'</div><div id="fb" style="text-align:center;min-height:90px"></div><button id="xm">Back to levels</button>';
   const hear=()=>say(d[0]);xr.onclick=hear;xm.onclick=exam;setTimeout(()=>g===xg&&hear(),300);
@@ -252,21 +257,24 @@ function drillEnd(lv,write,st){
     '<div style="display:flex;gap:6px"><button id="xa">Again</button><button id="xn">'+(write?'3 · Mock test':'2 · Write drill')+'</button><button id="xm">Levels</button></div>';
   xa.onclick=()=>drill(lv,write);xn.onclick=()=>write?exStart(lv):drill(lv,true);xm.onclick=exam;
 }
-function exStart(lv){
-  const nums=[];while(nums.length<8){const n=11+Math.floor(Math.random()*89);if(!nums.includes(n))nums.push(n);}
-  const pool=[...ALL,...WORDS].filter(d=>tier(d)<=lv).concat(nums.map(num)).sort(()=>Math.random()-.5),pick=[];
+function exStart(lv,t){
+  const nums=[];while(nums.length<(t?0:8)){const n=11+Math.floor(Math.random()*89);if(!nums.includes(n))nums.push(n);}
+  const cards=[...ALL,...V.flatMap(l=>l[1])],tp=t!=null&&TOPICS[t][1].split(' ').map(w=>cards.find(d=>d[0]===w));
+  const pool=(tp||[...ALL,...WORDS].filter(d=>tier(d)<=lv)).concat(nums.map(num)).shuf(),pick=[];
   // no two items that sound the same or share a meaning, or a listening question has two right answers
-  for(const d of pool)if(pick.length<20&&!pick.some(p=>sk(p)===sk(d)||p[2]===d[2]))pick.push(d);
-  const qs=pick.slice(0,10),opts=pick.slice().sort(()=>Math.random()-.5);
-  const x={lv,qs,opts,ans:[],marks:[]};
+  const isN=d=>[...d[0]].every(c=>ZD.includes(c)||c==='十'),nCap=lv&&!tp?5:20; // Easy drills numbers; Mid/Hard keep them to at most half the questions
+  for(const d of pool)if(pick.length<20&&!(isN(d)&&pick.filter(isN).length>=nCap)&&!pick.some(p=>sk(p)===sk(d)||p[2]===d[2]))pick.push(d);
+  // a small topic keeps 2 spare options so the last answer is not given away by elimination
+  const qs=pick.slice(0,Math.min(10,pick.length-2)),opts=pick.slice().shuf();
+  const x={lv,t,qs,opts,ans:[],marks:[]};
   xg++;exKey=null;EX.innerHTML='<h2>Part 1 · read the list</h2><p class="mute">Listening starts in <b id="xt"></b></p><ol>'+
     opts.map((d,i)=>'<li><b>'+String.fromCharCode(65+i)+'</b>'+d[2]+'</li>').join('')+'</ol><button id="xs">Start listening now</button>';
   const go=()=>exListen(x,0);xs.onclick=go;tick(30,xt,go);
 }
 function exListen(x,i){
-  if(i>=10)return exWrite(x,0);
+  if(i>=x.qs.length)return exWrite(x,0);
   xg++;const g=xg;
-  EX.innerHTML='<h2>Part 1 · question '+(i+1)+' of 10</h2><p class="mute">Pick the letter of the meaning you hear (or press the letter key; space = hear again).</p><div class="big">🔊</div><button id="xr">Hear again</button><div class="letters">'+
+  EX.innerHTML='<h2>Part 1 · question '+(i+1)+' of '+x.qs.length+'</h2><p class="mute">Pick the letter of the meaning you hear (or press the letter key; space = hear again).</p><div class="big">🔊</div><button id="xr">Hear again</button><div class="letters">'+
     x.opts.map((d,j)=>'<button data-j="'+j+'" title="'+d[2]+'">'+String.fromCharCode(65+j)+'</button>').join('')+'</div><ol>'+
     x.opts.map((d,j)=>'<li><b>'+String.fromCharCode(65+j)+'</b>'+d[2]+'</li>').join('')+'</ol>';
   const hear=()=>say(x.qs[i][0]);xr.onclick=hear;setTimeout(()=>g===xg&&hear(),400);
@@ -290,9 +298,9 @@ function pad(word,hints,done){
 function exWrite(x,i){
   exKey=null;
   if(i===0){x.end=Date.now()+10*60*1000;}
-  if(i>=10||Date.now()>=x.end)return exResult(x);
+  if(i>=x.qs.length||Date.now()>=x.end)return exResult(x);
   xg++;const a=x.ans[i],d=x.qs[i];
-  EX.innerHTML='<h2>Part 2 · write '+(i+1)+' of 10</h2><p class="mute">Time left <b id="xt"></b> · write what you heard for question '+(i+1)+
+  EX.innerHTML='<h2>Part 2 · write '+(i+1)+' of '+x.qs.length+'</h2><p class="mute">Time left <b id="xt"></b> · write what you heard for question '+(i+1)+
     '<br>You chose <b>'+String.fromCharCode(65+a)+'</b> · '+x.opts[a][2]+'</p><div id="qw"></div>'+
     '<div style="display:flex;gap:6px"><button id="xr">🔊 hint (not allowed in the real test)</button><button id="xk">I can\'t write it</button></div>';
   tick(Math.ceil((x.end-Date.now())/1000),xt,()=>exResult(x));
@@ -304,19 +312,20 @@ function exResult(x){
   xg++;exKey=null;hush();
   // a written item counts if each character has at most 2 wrong strokes (the hint shows after 3)
   const mOk=x.qs.map((d,i)=>x.opts[x.ans[i]]===d),wOk=x.qs.map((d,i)=>x.marks[i]!=null&&Math.max(...x.marks[i])<=2);
-  const m=mOk.filter(Boolean).length,w=wOk.filter(Boolean).length,pass=m>=8&&w>=8;
-  if(pass&&x.lv<2&&unlocked()<=x.lv)store('lvl',x.lv+1);
-  EX.innerHTML='<h2>'+LVL[x.lv]+' · result</h2><div class="big">'+(m*.5+w)+' / 15%</div><p class="mute">Meaning '+m+'/10 (0.5% each) · Writing '+w+'/10 (1% each)'+
-    (pass?(x.lv<2?' · next level unlocked':' · all levels passed'):' · 8/10 on both parts to pass')+'</p>'+
+  const m=mOk.filter(Boolean).length,w=wOk.filter(Boolean).length,n=x.qs.length,pass=m>=n*.8&&w>=n*.8;
+  if(pass&&x.t==null&&x.lv<2&&unlocked()<=x.lv)store('lvl',x.lv+1);
+  EX.innerHTML=(x.t!=null?'<h2>'+TOPICS[x.t][0]+' · result</h2><div class="big">'+(m+w)+' / '+2*n+'</div><p class="mute">Meaning '+m+'/'+n+' · Writing '+w+'/'+n+(pass?' · passed':' · 80% on both parts to pass')+'</p>':
+    '<h2>'+LVL[x.lv]+' · result</h2><div class="big">'+(m*.5+w)+' / 15%</div><p class="mute">Meaning '+m+'/10 (0.5% each) · Writing '+w+'/10 (1% each)'+
+    (pass?(x.lv<2?' · next level unlocked':' · all levels passed'):' · 8/10 on both parts to pass')+'</p>')+
     '<table><tr><th>#</th><th>Heard</th><th>Meaning</th><th>You picked</th><th>Written</th></tr>'+x.qs.map((d,i)=>
       '<tr><td>'+(i+1)+'</td><td style="font-size:22px">'+d[0]+' <small>'+d[1]+'</small></td><td>'+String.fromCharCode(65+x.opts.indexOf(d))+' · '+d[2]+'</td>'+
       '<td class="'+(mOk[i]?'ok':'no')+'">'+(x.ans[i]==null?'–':String.fromCharCode(65+x.ans[i]))+(mOk[i]?' ✓':' ✗')+'</td>'+
       '<td class="'+(wOk[i]?'ok':'no')+'">'+(x.marks[i]==null?'not written ✗':(t=>t+' wrong stroke'+(t===1?'':'s'))(x.marks[i].reduce((a,b)=>a+b,0))+(wOk[i]?' ✓':' ✗'))+'</td></tr>').join('')+'</table>'+
     '<p class="mute">Tap a character to see its stroke order.</p><div style="display:flex;gap:6px"><button id="xa">Try again</button><button id="xm">Levels</button><button id="xq">Close</button></div>';
   EX.querySelectorAll('tr').forEach((r,i)=>{if(i)r.cells[1].style.cursor='pointer',r.cells[1].onclick=()=>open(x.qs[i-1]);});
-  xa.onclick=()=>exStart(x.lv);xm.onclick=exam;xq.onclick=exShut;
+  xa.onclick=()=>exStart(x.lv,x.t);xm.onclick=exam;xq.onclick=exShut;
 }
-build(false);
+build();
 </script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
 </body>
