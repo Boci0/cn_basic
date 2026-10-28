@@ -268,16 +268,16 @@ function exStart(lv,t){
   const qs=pick.slice(0,Math.min(10,pick.length-2)),opts=pick.slice().shuf();
   const x={lv,t,qs,opts,ans:[],marks:[]};
   xg++;exKey=null;EX.innerHTML='<h2>Part 1 · read the list</h2><p class="mute">Listening starts in <b id="xt"></b></p><ol>'+
-    opts.map((d,i)=>'<li><b>'+String.fromCharCode(65+i)+'</b>'+d[2]+'</li>').join('')+'</ol><button id="xs">Start listening now</button>';
-  const go=()=>exListen(x,0);xs.onclick=go;tick(30,xt,go);
+    opts.map((d,i)=>'<li><b>'+String.fromCharCode(65+i)+'</b>'+d[2]+'</li>').join('')+'</ol><div style="display:flex;gap:6px"><button id="xs">Start listening now</button><button id="xm">Back to levels</button></div>';
+  const go=()=>exListen(x,0);xs.onclick=go;xm.onclick=exam;tick(30,xt,go);
 }
 function exListen(x,i){
   if(i>=x.qs.length)return exWrite(x,0);
   xg++;const g=xg;
   EX.innerHTML='<h2>Part 1 · question '+(i+1)+' of '+x.qs.length+'</h2><p class="mute">Pick the letter of the meaning you hear (or press the letter key; space = hear again).</p><div class="big">🔊</div><button id="xr">Hear again</button><div class="letters">'+
     x.opts.map((d,j)=>'<button data-j="'+j+'" title="'+d[2]+'">'+String.fromCharCode(65+j)+'</button>').join('')+'</div><ol>'+
-    x.opts.map((d,j)=>'<li><b>'+String.fromCharCode(65+j)+'</b>'+d[2]+'</li>').join('')+'</ol>';
-  const hear=()=>say(x.qs[i][0]);xr.onclick=hear;setTimeout(()=>g===xg&&hear(),400);
+    x.opts.map((d,j)=>'<li><b>'+String.fromCharCode(65+j)+'</b>'+d[2]+'</li>').join('')+'</ol><button id="xm">Back to levels</button>';
+  const hear=()=>say(x.qs[i][0]);xr.onclick=hear;xm.onclick=exam;setTimeout(()=>g===xg&&hear(),400);
   const bs=EX.querySelectorAll('[data-j]');
   bs.forEach(b=>b.onclick=()=>{if(g!==xg||x.ans[i]!=null)return; // one answer per question, even on a double-click
     x.ans[i]=+b.dataset.j;b.classList.add('pick');bs.forEach(o=>o.disabled=o!==b);setTimeout(()=>g===xg&&exListen(x,i+1),300);});
@@ -302,7 +302,8 @@ function exWrite(x,i){
   xg++;const a=x.ans[i],d=x.qs[i];
   EX.innerHTML='<h2>Part 2 · write '+(i+1)+' of '+x.qs.length+'</h2><p class="mute">Time left <b id="xt"></b> · write what you heard for question '+(i+1)+
     '<br>You chose <b>'+String.fromCharCode(65+a)+'</b> · '+x.opts[a][2]+'</p><div id="qw"></div>'+
-    '<div style="display:flex;gap:6px"><button id="xr">🔊 hint (not allowed in the real test)</button><button id="xk">I can\'t write it</button></div>';
+    '<div style="display:flex;gap:6px"><button id="xr">🔊 hint (not allowed in the real test)</button><button id="xk">I can\'t write it</button><button id="xm">Back to levels</button></div>';
+  xm.onclick=exam;
   tick(Math.ceil((x.end-Date.now())/1000),xt,()=>exResult(x));
   const g=xg;pad(d[0],3,m=>{x.marks[i]=m;setTimeout(()=>g===xg&&exWrite(x,i+1),700);});
   xr.onclick=()=>say(d[0]);xk.onclick=()=>{if(g===xg){x.marks[i]=null;exWrite(x,i+1);}};
